@@ -13,6 +13,7 @@ int m, n, B;
 int dust_cnt = 0;
 int steps = 0;
 char floorplan[MAXSIZE][MAXSIZE] = { '\0' };
+char map[MAXSIZE][MAXSIZE] = { '\0' };
 
 class Point {
 public:
@@ -31,22 +32,24 @@ Point pt(int y, int x) {
 Point start;
 Point cur;
 
+int visit(Point start, Point end, int power) {
 
+}
 
 void DFS(Point p, int power) {
     cout << p.y << ' ' << p.x << endl;
-    if (floorplan[p.y][p.x] == '0')
-        floorplan[p.y][p.x] = '2';
-    if (floorplan[p.y][p.x + 1] == '0') {
+    if (map[p.y][p.x] == '0')
+        map[p.y][p.x] = '2';
+    if (map[p.y][p.x + 1] == '0') {
         DFS(pt(p.y, p.x + 1), power - 1);
     }
-    if (floorplan[p.y + 1][p.x] == '0') {
+    if (map[p.y + 1][p.x] == '0') {
         DFS(pt(p.y + 1, p.x), power - 1);
     }
-    if (floorplan[p.y][p.x - 1] == '0') {
+    if (map[p.y][p.x - 1] == '0') {
         DFS(pt(p.y, p.x - 1), power - 1);
     }
-    if (floorplan[p.y - 1][p.x] == '0') {
+    if (map[p.y - 1][p.x] == '0') {
         DFS(pt(p.y - 1, p.x), power - 1);
     }
 }
@@ -57,26 +60,26 @@ void IDFS(Point p, int power) {
     while (!s.empty()) {
         p = s.top();
         s.pop();
-        if (floorplan[p.y][p.x] == '0' || floorplan[p.y][p.x] == 'R') {
+        if (map[p.y][p.x] == '0' || map[p.y][p.x] == 'R') {
             cout << p.y << ' ' << p.x << endl;
-            if (floorplan[p.y][p.x] == '0')
-                floorplan[p.y][p.x] = '2';
+            if (map[p.y][p.x] == '0')
+                map[p.y][p.x] = '2';
             for (int i = 0; i < m; i++) {
                 for (int j = 0; j < n; j++) {
-                    cout << floorplan[i][j] << " ";
+                    cout << map[i][j] << " ";
                 }
                 cout << endl;
             }
-            if (floorplan[p.y - 1][p.x] == '0') {
+            if (map[p.y - 1][p.x] == '0') {
                 s.push(pt(p.y - 1, p.x));
             }
-            if (floorplan[p.y][p.x - 1] == '0') {
+            if (map[p.y][p.x - 1] == '0') {
                 s.push(pt(p.y, p.x - 1));
             }
-            if (floorplan[p.y + 1][p.x] == '0') {
+            if (map[p.y + 1][p.x] == '0') {
                 s.push(pt(p.y + 1, p.x));
             }
-            if (floorplan[p.y][p.x + 1] == '0') {
+            if (map[p.y][p.x + 1] == '0') {
                 s.push(pt(p.y, p.x + 1));
             }
         }
@@ -88,68 +91,65 @@ void BFS(Point p,int power) {
     queue<Point> q;
     int cnt = 0;
     q.push(p);
-    if (floorplan[p.y][p.x] == '0')
-        floorplan[p.y][p.x] = '2';              // 2 = visited
+   // if (floorplan[p.y][p.x] == '0')
+     //   floorplan[p.y][p.x] = '2';              // 2 = visited
     while (!q.empty()) {
         p = q.front();
         q.pop();
         cout << p.y << ' ' << p.x << endl;
-        if (floorplan[p.y][p.x + 1] == '0') {
+        if (map[p.y][p.x + 1] == '0') {
             q.push(pt(p.y, p.x + 1));
-            floorplan[p.y][p.x + 1] = '2';
+            map[p.y][p.x + 1] = '2';
         }
-        if (floorplan[p.y + 1][p.x] == '0') {
+        if (map[p.y + 1][p.x] == '0') {
             q.push(pt(p.y + 1, p.x));
-            floorplan[p.y + 1][p.x] = '2';
+            map[p.y + 1][p.x] = '2';
         }
-        if (floorplan[p.y][p.x - 1] == '0') {
+        if (map[p.y][p.x - 1] == '0') {
             q.push(pt(p.y, p.x - 1));
-            floorplan[p.y][p.x - 1] = '2';
+            map[p.y][p.x - 1] = '2';
         }
-        if (floorplan[p.y - 1][p.x] == '0') {
+        if (map[p.y - 1][p.x] == '0') {
             q.push(pt(p.y - 1, p.x));
-            floorplan[p.y - 1][p.x] = '2';
+            map[p.y - 1][p.x] = '2';
         }
     }
 }
 
 void BDS(Point p, int power) {
-    cout << p.y << ' ' << p.x << endl;
     queue<Point> q;
     stack<Point> s;
     int steps = 0;
-    s.push(p);
+    q.push(p);
+    //if (floorplan[p.y][p.x] == '0')
+      //  floorplan[p.y][p.x] = '2';              // 2 = visited by BFS
+    while (!q.empty()) {
+        p = q.front();
+        q.pop();
+        //cout << p.y << ' ' << p.x << endl;
+        s.push(p);
+        if (map[p.y][p.x + 1] == '0') {
+            q.push(pt(p.y, p.x + 1));
+            map[p.y][p.x + 1] = '2';
+        }
+        if (map[p.y + 1][p.x] == '0') {
+            q.push(pt(p.y + 1, p.x));
+            map[p.y + 1][p.x] = '2';
+        }
+        if (map[p.y][p.x - 1] == '0') {
+            q.push(pt(p.y, p.x - 1));
+            map[p.y][p.x - 1] = '2';
+        }
+        if (map[p.y - 1][p.x] == '0') {
+            q.push(pt(p.y - 1, p.x));
+            map[p.y - 1][p.x] = '2';
+        }
+    }
     while (!s.empty()) {
         p = s.top();
         s.pop();
-        if (floorplan[p.y][p.x] == '0' || floorplan[p.y][p.x] == 'R') {
-            cout << p.y << ' ' << p.x << endl;
-            if (floorplan[p.y][p.x] == '0')
-                floorplan[p.y][p.x] = '2';
-            /*for (int i = 0; i < m; i++) {
-                for (int j = 0; j < n; j++) {
-                    cout << floorplan[i][j] << " ";
-                }
-                cout << endl;
-            }*/
-            if (steps <= (power / 2)) {
-                if (floorplan[p.y - 1][p.x] == '0') {
-                    s.push(pt(p.y - 1, p.x));
-                    steps++;
-                }
-                if (floorplan[p.y][p.x - 1] == '0') {
-                    s.push(pt(p.y, p.x - 1));
-                    steps++;
-                }
-                if (floorplan[p.y + 1][p.x] == '0') {
-                    s.push(pt(p.y + 1, p.x));
-                    steps++;
-                }
-                if (floorplan[p.y][p.x + 1] == '0') {
-                    s.push(pt(p.y, p.x + 1));
-                    steps++;
-                }
-            }
+        if (floorplan[p.y][p.x] == '0') {                //visited by BFS but not robot yet
+            visit(start, p, power);
         }
     }
 }
@@ -165,11 +165,12 @@ int main(int argc, char* argv[]) {
     //cin >> m >> n >> B;
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            infile >> floorplan[i][j];
-            if (floorplan[i][j] == '0') {
+            infile >> map[i][j];
+            floorplan[i][j] = map[i][j];
+            if (map[i][j] == '0') {
                 dust_cnt++;
             }
-            else if (floorplan[i][j] == 'R') {
+            else if (map[i][j] == 'R') {
                 cur.y = start.y = i;
                 cur.x = start.x = j;
                 //cout << cur.x << ' ' << cur.y;
@@ -177,14 +178,14 @@ int main(int argc, char* argv[]) {
             }
         }
     }
-    IDFS(cur, B);
+    //IDFS(cur, B);
     //DFS(cur, B);
     //BFS(cur, B);
     //BDS(cur, B);
 
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            cout << floorplan[i][j] << " ";
+            cout << map[i][j] << " ";
         }
         cout << endl;
     }
