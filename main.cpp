@@ -17,7 +17,7 @@ double dist_f[MAXSIZE][MAXSIZE] = { 0 };
 double dist_g[MAXSIZE][MAXSIZE] = { 0 };
 double dist_h[MAXSIZE][MAXSIZE] = { 0 };
 
-ofstream outfile("3.path");
+ofstream outfile("1.path");
 
 class Point {
 public:
@@ -47,33 +47,37 @@ void visit(Point start, Point end) {
         }
         if (dist_g[p.y - 1][p.x] == dist_g[p.y][p.x] - 1) {
             s.push(pt(p.y - 1, p.x));
+            //cout << p.y << ' ' << p.x << ' ' << steps++ << endl;
         }
         else if (dist_g[p.y][p.x - 1] == dist_g[p.y][p.x] - 1) {
             s.push(pt(p.y, p.x - 1));
+            //cout << p.y << ' ' << p.x << ' ' << steps++ << endl;
         }
         else if (dist_g[p.y + 1][p.x] == dist_g[p.y][p.x] - 1) {
             s.push(pt(p.y + 1, p.x));
+            //cout << p.y << ' ' << p.x << ' ' << steps++ << endl;
         }
-        else if (dist_g[p.y][p.x - 1] == dist_g[p.y][p.x] - 1) {
+        else if (dist_g[p.y][p.x + 1] == dist_g[p.y][p.x] - 1) {
             s.push(pt(p.y, p.x + 1));
+            //cout << p.y << ' ' << p.x << ' ' << steps++ << endl;
         }
     }
     while (!e.empty()) {
         p = e.top();
         if ((p.y != end.y || p.x != end.x) && (p.y != start.y || p.x != start.x))
             s.push(p);
-        cout << p.y << ' ' << p.x << ' ' << steps++ << endl;
+        //cout << p.y << ' ' << p.x << ' ' << steps++ << endl;
         path.push(p);
-        //steps++;
+        steps++;
         e.pop();
     }
-   /*while (!s.empty()) {
+   while (!s.empty()) {
         p = s.top();
-        cout << p.y << ' ' << p.x << ' ' << steps++ << '  ';
+        //cout << p.y << ' ' << p.x << ' ' << steps++ << endl;
         path.push(p);
-        //steps++;
+        steps++;
         s.pop();
-    }*/
+    }
 }
 
 void BFS(Point p, int power) {
@@ -111,28 +115,28 @@ void BFS(Point p, int power) {
         }
     }
     //p = s.top();
-    //astar(start, p);
+    //visit(start, p);
     while (!s.empty()) {
         p = s.top();
         //cout << p.y << ' ' << p.x << endl;
         s.pop();
         if (floorplan[p.y][p.x] == '0') {                //visited by BFS but not robot yet
             visit(start, p);
-            cout << endl;
+            //cout << endl;
         }
     }
-    /*outfile << steps << endl;
+    outfile << steps << endl;
     while (!path.empty()) {
         p = path.front();
         outfile << p.y << ' ' << p.x << endl;
         path.pop();
     }
-    outfile << start.y << ' ' << start.x << endl;*/
+    outfile << start.y << ' ' << start.x << endl;
 }
 
 int main(int argc, char* argv[]) {
-    ifstream infile("floor3.data");
-    //ifstream infile(argv[1]);               //開啟檔案
+    //ifstream infile("floor3.data");
+    ifstream infile(argv[1]);               //開啟檔案
     if (!infile) {                            //判斷是否正確開啟檔案
         cout << "Can not open file!\n";
         return 1;
@@ -158,12 +162,12 @@ int main(int argc, char* argv[]) {
         }
     }
     BFS(cur, B);
-    for (int i = 0; i < m; i++) {
+    /*for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
             cout << setw(3) << dist_g[i][j] << " ";
         }
         cout << endl;
-    }
+    }*/
 
     infile.close();
     outfile.close();
