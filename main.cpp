@@ -17,7 +17,7 @@ double dist_f[MAXSIZE][MAXSIZE] = { 0 };
 double dist_g[MAXSIZE][MAXSIZE] = { 0 };
 double dist_h[MAXSIZE][MAXSIZE] = { 0 };
 
-ofstream outfile("1.path");
+ofstream outfile("final.path");
 
 class Point {
 public:
@@ -31,8 +31,9 @@ Point pt(int y, int x) {
 Point start;
 Point cur;
 queue<Point> path;
+stack<Point> farthest;
 
-void visit(Point start, Point end) {
+void visit(Point start, Point end, int power) {
     stack<Point> s;                     //end to start
     stack<Point> e;                     //start to end (not include end)
     Point p = pt(end.y, end.x);
@@ -45,22 +46,31 @@ void visit(Point start, Point end) {
             if (floorplan[p.y][p.x] == '0')
                 floorplan[p.y][p.x] = '2';
         }
-        if (dist_g[p.y - 1][p.x] == dist_g[p.y][p.x] - 1) {
+        if (dist_g[p.y - 1][p.x] == dist_g[p.y][p.x] - 1 && floorplan[p.y - 1][p.x] == '0') {
             s.push(pt(p.y - 1, p.x));
-            //cout << p.y << ' ' << p.x << ' ' << steps++ << endl;
+        }
+        else if (dist_g[p.y][p.x - 1] == dist_g[p.y][p.x] - 1 && floorplan[p.y][p.x - 1] == '0') {
+            s.push(pt(p.y, p.x - 1));
+        }
+        else if (dist_g[p.y + 1][p.x] == dist_g[p.y][p.x] - 1 && floorplan[p.y + 1][p.x] == '0') {
+            s.push(pt(p.y + 1, p.x));
+        }
+        else if (dist_g[p.y][p.x + 1] == dist_g[p.y][p.x] - 1 && floorplan[p.y][p.x + 1] == '0') {
+            s.push(pt(p.y, p.x + 1));
+        }
+        else if (dist_g[p.y - 1][p.x] == dist_g[p.y][p.x] - 1) {
+            s.push(pt(p.y - 1, p.x));
         }
         else if (dist_g[p.y][p.x - 1] == dist_g[p.y][p.x] - 1) {
             s.push(pt(p.y, p.x - 1));
-            //cout << p.y << ' ' << p.x << ' ' << steps++ << endl;
         }
         else if (dist_g[p.y + 1][p.x] == dist_g[p.y][p.x] - 1) {
             s.push(pt(p.y + 1, p.x));
-            //cout << p.y << ' ' << p.x << ' ' << steps++ << endl;
         }
         else if (dist_g[p.y][p.x + 1] == dist_g[p.y][p.x] - 1) {
             s.push(pt(p.y, p.x + 1));
-            //cout << p.y << ' ' << p.x << ' ' << steps++ << endl;
         }
+            //cout << p.y << ' ' << p.x << ' ' << steps++ << endl;
     }
     while (!e.empty()) {
         p = e.top();
@@ -82,7 +92,6 @@ void visit(Point start, Point end) {
 
 void BFS(Point p, int power) {
     queue<Point> q;
-    stack<Point> s;
     stack<Point> forward;
     stack<Point> backward;
     q.push(p);
@@ -92,36 +101,40 @@ void BFS(Point p, int power) {
         p = q.front();
         q.pop();
         //cout << p.y << ' ' << p.x << endl;
-        s.push(p);
+        farthest.push(p);
         if (map[p.y][p.x + 1] == '0') {
-            q.push(pt(p.y, p.x + 1));
+            //q.push(pt(p.y, p.x + 1));
+            q.push({ p.y,p.x + 1 });
             map[p.y][p.x + 1] = '2';
             dist_g[p.y][p.x + 1] = dist_g[p.y][p.x] + 1;
         }
         if (map[p.y + 1][p.x] == '0') {
-            q.push(pt(p.y + 1, p.x));
+            //q.push(pt(p.y + 1, p.x));
+            q.push({ p.y + 1,p.x });
             map[p.y + 1][p.x] = '2';
             dist_g[p.y + 1][p.x] = dist_g[p.y][p.x] + 1;
         }
         if (map[p.y][p.x - 1] == '0') {
-            q.push(pt(p.y, p.x - 1));
+            //q.push(pt(p.y, p.x - 1));
+            q.push({ p.y,p.x - 1 });
             map[p.y][p.x - 1] = '2';
             dist_g[p.y][p.x - 1] = dist_g[p.y][p.x] + 1;
         }
         if (map[p.y - 1][p.x] == '0') {
-            q.push(pt(p.y - 1, p.x));
+            //q.push(pt(p.y - 1, p.x));
+            q.push({ p.y - 1,p.x });
             map[p.y - 1][p.x] = '2';
             dist_g[p.y - 1][p.x] = dist_g[p.y][p.x] + 1;
         }
     }
-    //p = s.top();
+    //p = farthest.top();
     //visit(start, p);
-    while (!s.empty()) {
-        p = s.top();
+    while (!farthest.empty()) {
+        p = farthest.top();
         //cout << p.y << ' ' << p.x << endl;
-        s.pop();
+        farthest.pop();
         if (floorplan[p.y][p.x] == '0') {                //visited by BFS but not robot yet
-            visit(start, p);
+            visit(start, p, power);
             //cout << endl;
         }
     }
@@ -135,8 +148,8 @@ void BFS(Point p, int power) {
 }
 
 int main(int argc, char* argv[]) {
-    //ifstream infile("floor3.data");
-    ifstream infile(argv[1]);               //開啟檔案
+    ifstream infile("floor3.data");
+    //ifstream infile(argv[1]);               //開啟檔案
     if (!infile) {                            //判斷是否正確開啟檔案
         cout << "Can not open file!\n";
         return 1;
@@ -147,10 +160,10 @@ int main(int argc, char* argv[]) {
         for (int j = 0; j < n; j++) {
             infile >> map[i][j];
             floorplan[i][j] = map[i][j];
-            if (map[i][j] == '0') {
-                dust_cnt++;
-            }
-            else if (map[i][j] == '1') {
+            //if (map[i][j] == '0') {
+            //    dust_cnt++;
+            //}
+            if (map[i][j] == '1') {
                 dist_f[i][j] = -2;
                 dist_g[i][j] = -2;
                 dist_h[i][j] = -2;
@@ -164,7 +177,7 @@ int main(int argc, char* argv[]) {
     BFS(cur, B);
     /*for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-            cout << setw(3) << dist_g[i][j] << " ";
+            cout << setw(4) << floorplan[i][j] << " ";
         }
         cout << endl;
     }*/
